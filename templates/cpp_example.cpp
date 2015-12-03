@@ -33,13 +33,16 @@ void write_responses(const vector<string>& result) {
 vector<string> process_queries(vector<Query> data) {
     vector<string> result;
     for (size_t i = 0; i < data.size(); ++i)
+        /* try to find a previously processed query to add this number,
+         * if found - make the corresponding name empty */
         if (data[i].type == "del") {
             for (size_t j = 0; j < i; ++j)
                 if (data[j].type == "add" && data[j].number == data[i].number) {
-                    data[j].name = "empty";
+                    data[j].name = "empty"; 
                     break;
                 }
         } else if (data[i].type == "find") {
+            /*try to find this number among previously processed 'add' queries*/
             string cur_res = "empty";
             for (size_t j = 0; j < i; ++j)
                 if (data[j].type == "add" && data[j].number == data[i].number) {
@@ -47,7 +50,6 @@ vector<string> process_queries(vector<Query> data) {
                     break;
                 }
             result.push_back(cur_res);
-
         }
     return result;
 }

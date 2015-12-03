@@ -15,11 +15,14 @@ def write_responses(result):
 def process_queries(data):
     result = []
     for i in range(len(data)):
+        # try to find a previously processed query to add this number,
+        # if found - make the corresponding name empty
         if data[i].type == 'del':
             for j in range(i):
                 if data[j].type == 'add' and data[j].number == data[i].number:
                     data[j].name = 'empty'
                     break
+        # try to find this number among previously processed 'add' queries
         elif data[i].type == 'find':
             cur_res = 'empty'
             for j in range(i):
