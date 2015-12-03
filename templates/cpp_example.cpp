@@ -46,7 +46,7 @@ vector<string> process_queries(vector<Query> data) {
             string cur_res = "empty";
             for (size_t j = 0; j < i; ++j)
                 if (data[j].type == "add" && data[j].number == data[i].number) {
-                    cur_res.swap(data[j].name);
+                    cur_res = data[j].name;
                     break;
                 }
             result.push_back(cur_res);
