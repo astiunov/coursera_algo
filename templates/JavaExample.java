@@ -35,7 +35,18 @@ public class JavaExample {
         List<Contact> contacts = new ArrayList<>();
         for (Query query : queries) {
             if (query.type.equals("add")) {
-                contacts.add(new Contact(query.name, query.number));
+                // if we already have contact with such number,
+                // we should rewrite contact's name
+                boolean was_founded = false;
+                for (Contact contact : contacts)
+                    if (contact.number == query.number) {
+                        contact.name = query.name;
+                        was_founded = true;
+                        break;
+                    }
+                // otherwise, just add it
+                if (!was_founded)
+                    contacts.add(new Contact(query.name, query.number));
             } else if (query.type.equals("del")) {
                 for (int i = 0; i < contacts.size(); ++i)
                     if (contacts.get(i).number == query.number) {

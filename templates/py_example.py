@@ -12,24 +12,32 @@ def read_queries():
 def write_responses(result):
     print('\n'.join(result))
 
-def process_queries(data):
+def process_queries(queries):
     result = []
-    for i in range(len(data)):
-        # try to find a previously processed query to add this number,
-        # if found - make the corresponding name empty
-        if data[i].type == 'del':
-            for j in range(i):
-                if data[j].type == 'add' and data[j].number == data[i].number:
-                    data[j].name = 'empty'
+    # Keep list of all existing (i.e. not deleted yet) contacts.
+    contacts = []
+    for cur_query in queries:
+        if cur_query.type == 'add':
+            # if we already have contact with such number,
+            # we should rewrite contact's name
+            for contact in contacts:
+                if contact.number == cur_query.number:
+                    contact.name = cur_query.name
                     break
-        # try to find this number among previously processed 'add' queries
-        elif data[i].type == 'find':
-            cur_res = 'empty'
-            for j in range(i):
-                if data[j].type == 'add' and data[j].number == data[i].number:
-                    cur_res = data[j].name
+            else: # otherwise, just add it
+                contacts.append(cur_query)
+        elif cur_query.type == 'del':
+            for j in range(len(contacts)):
+                if contacts[j].number == cur_query.number:
+                    contacts.pop(j)
                     break
-            result.append(cur_res)
+        else:
+            response = 'empty'
+            for contact in contacts:
+                if contact.number == cur_query.number:
+                    response = contact.name
+                    break
+            result.append(response)
     return result
 
 if __name__ == '__main__':

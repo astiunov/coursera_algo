@@ -14,15 +14,15 @@ struct Query {
 vector<Query> read_queries() {
     int n;
     cin >> n;
-    vector<Query> data(n);
+    vector<Query> queries(n);
     for (int i = 0; i < n; ++i) {
-        cin >> data[i].type;
-        if (data[i].type == "add")
-            cin >> data[i].number >> data[i].name;
+        cin >> queries[i].type;
+        if (queries[i].type == "add")
+            cin >> queries[i].number >> queries[i].name;
         else
-            cin >> data[i].number;
+            cin >> queries[i].number;
     }
-    return data;
+    return queries;
 }
 
 void write_responses(const vector<string>& result) {
@@ -30,26 +30,38 @@ void write_responses(const vector<string>& result) {
         std::cout << result[i] << "\n";
 }
 
-vector<string> process_queries(vector<Query> data) {
+vector<string> process_queries(const vector<Query>& queries) {
     vector<string> result;
-    for (size_t i = 0; i < data.size(); ++i)
-        /* try to find a previously processed query to add this number,
-         * if found - make the corresponding name empty */
-        if (data[i].type == "del") {
-            for (size_t j = 0; j < i; ++j)
-                if (data[j].type == "add" && data[j].number == data[i].number) {
-                    data[j].name = "empty"; 
+    // Keep list of all existing (i.e. not deleted yet) contacts.
+    vector<Query> contacts;
+    for (size_t i = 0; i < queries.size(); ++i)
+        if (queries[i].type == "add") {
+            bool was_founded = false;
+            // if we already have contact with such number,
+            // we should rewrite contact's name
+            for (size_t j = 0; j < contacts.size(); ++j)
+                if (contacts[j].number == queries[i].number) {
+                    contacts[j].name = queries[i].name;
+                    was_founded = true;
                     break;
                 }
-        } else if (data[i].type == "find") {
-            /*try to find this number among previously processed 'add' queries*/
-            string cur_res = "empty";
-            for (size_t j = 0; j < i; ++j)
-                if (data[j].type == "add" && data[j].number == data[i].number) {
-                    cur_res = data[j].name;
+            // otherwise, just add it
+            if (!was_founded)
+                contacts.push_back(queries[i]);
+        } else if (queries[i].type == "del") {
+            for (size_t j = 0; j < contacts.size(); ++j)
+                if (contacts[j].number == queries[i].number) {
+                    contacts.erase(contacts.begin() + j);
                     break;
                 }
-            result.push_back(cur_res);
+        } else {
+            string response = "empty";
+            for (size_t j = 0; j < contacts.size(); ++j)
+                if (contacts[j].number == queries[i].number) {
+                    response = contacts[j].name;
+                    break;
+                }
+            result.push_back(response);
         }
     return result;
 }
