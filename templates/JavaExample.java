@@ -1,75 +1,73 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class JavaExample {
+
+    private FastScanner in = new FastScanner();
+    // Keep list of all existing (i.e. not deleted yet) contacts.
+    private List<Contact> contacts = new ArrayList<>();
+
     public static void main(String[] args) {
-        // First, read all queries.
-        List<Query> queries = readQueries();
-        // Then, compute all results.
-        List<String> results = processQueries(queries);
-        // Finally, output the results.
-        outputResults(results);
+        new JavaExample().processQueries();
     }
 
-    private static List<Query> readQueries() {
-        Scanner in = new Scanner(System.in);
+    private Query readQuery() {
+        String type = in.next();
+        int number = in.nextInt();
+        if (type.equals("add")) {
+            String name = in.next();
+            return new Query(type, name, number);
+        } else {
+            return new Query(type, number);
+        }
+    }
+
+    private void writeResponse(String response) {
+        System.out.println(response);
+    }
+
+
+    private void processQuery(Query query) {
+        if (query.type.equals("add")) {
+            // if we already have contact with such number,
+            // we should rewrite contact's name
+            boolean wasFound = false;
+            for (Contact contact : contacts)
+                if (contact.number == query.number) {
+                    contact.name = query.name;
+                    wasFound = true;
+                    break;
+                }
+            // otherwise, just add it
+            if (!wasFound)
+                contacts.add(new Contact(query.name, query.number));
+        } else if (query.type.equals("del")) {
+            for (Iterator<Contact> it = contacts.iterator(); it.hasNext(); )
+                if (it.next().number == query.number) {
+                    it.remove();
+                    break;
+                }
+        } else {
+            String response = "empty";
+            for (Contact contact: contacts)
+                if (contact.number == query.number) {
+                    response = contact.name;
+                    break;
+                }
+            writeResponse(response);
+        }
+    }
+
+    public void processQueries() {
         int queryCount = in.nextInt();
-        List<Query> queries = new ArrayList<>();
-        for (int i = 0; i < queryCount; ++i) {
-            String type = in.next();
-            int number = in.nextInt();
-            if (type.equals("add")) {
-                String name = in.next();
-                queries.add(new Query(type, name, number));
-            } else {
-                queries.add(new Query(type, number));
-            }
-        }
-        return queries;
-    }
-
-    private static List<String> processQueries(List<Query> queries) {
-        List<String> results = new ArrayList<>();
-        // Keep list of all existing (i.e. not deleted yet) contacts.
-        List<Contact> contacts = new ArrayList<>();
-        for (Query query : queries) {
-            if (query.type.equals("add")) {
-                // if we already have contact with such number,
-                // we should rewrite contact's name
-                boolean was_founded = false;
-                for (Contact contact : contacts)
-                    if (contact.number == query.number) {
-                        contact.name = query.name;
-                        was_founded = true;
-                        break;
-                    }
-                // otherwise, just add it
-                if (!was_founded)
-                    contacts.add(new Contact(query.name, query.number));
-            } else if (query.type.equals("del")) {
-                for (int i = 0; i < contacts.size(); ++i)
-                    if (contacts.get(i).number == query.number) {
-                        contacts.remove(i);
-                        break;
-                    }
-            } else if (query.type.equals("find")) {
-                String name = "empty";
-                for (Contact contact : contacts)
-                    if (contact.number == query.number) {
-                        name = contact.name;
-                        break;
-                    }
-                results.add(name);
-            }
-        }
-        return results;
-    }
-
-    private static void outputResults(List<String> results) {
-        for (String result : results) {
-            System.out.println(result);
-        }
+        for (int i = 0; i < queryCount; ++i)
+            processQuery(readQuery());
     }
 
     static class Contact {
@@ -96,6 +94,30 @@ public class JavaExample {
         public Query(String type, int number) {
             this.type = type;
             this.number = number;
+        }
+    }
+
+    class FastScanner {
+        BufferedReader br;
+        StringTokenizer st;
+
+        FastScanner() {
+            br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        String next() {
+            while (st == null || !st.hasMoreTokens()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        int nextInt() {
+            return Integer.parseInt(next());
         }
     }
 }

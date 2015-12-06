@@ -5,41 +5,42 @@ class Query:
         if self.type == 'add':
             self.name = query[2]
 
-def read_queries():
-    n = int(input())
-    return [Query(input().split()) for i in range(n)]
-
-def write_responses(result):
-    print('\n'.join(result))
-
-def process_queries(queries):
-    result = []
-    # Keep list of all existing (i.e. not deleted yet) contacts.
-    contacts = []
-    for cur_query in queries:
-        if cur_query.type == 'add':
+class QueryProcessor:
+    def __init__(self):
+        # Keep list of all existing (i.e. not deleted yet) contacts.
+        self.contacts = []
+    def read_query(self):
+        return Query(input().split())
+    def write_response(self, response):
+        print(response)
+    def process_query(self, query):
+        if query.type == 'add':
             # if we already have contact with such number,
             # we should rewrite contact's name
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    contact.name = cur_query.name
+            for contact in self.contacts:
+                if contact.number == query.number:
+                    contact.name = query.name
                     break
             else: # otherwise, just add it
-                contacts.append(cur_query)
-        elif cur_query.type == 'del':
-            for j in range(len(contacts)):
-                if contacts[j].number == cur_query.number:
-                    contacts.pop(j)
+                self.contacts.append(query)
+        elif query.type == 'del':
+            for j in range(len(self.contacts)):
+                if self.contacts[j].number == query.number:
+                    self.contacts.pop(j)
                     break
         else:
             response = 'empty'
-            for contact in contacts:
-                if contact.number == cur_query.number:
+            for contact in self.contacts:
+                if contact.number == query.number:
                     response = contact.name
                     break
-            result.append(response)
-    return result
+            self.write_response(response)
+    def process_queries(self):
+        n = int(input())
+        for i in range(n):
+            self.process_query(self.read_query())
 
 if __name__ == '__main__':
-    write_responses(process_queries(read_queries()))
+    proc = QueryProcessor()
+    proc.process_queries()
 
